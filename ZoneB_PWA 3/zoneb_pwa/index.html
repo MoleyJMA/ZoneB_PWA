@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Zone B Shift" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <title>Zone B Shift</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body data-mode="idle">
+
+  <!-- INSTRUCTOR SETUP (first screen; reload the page to return here) -->
+  <section id="setupScreen" class="screen active">
+    <h1>Instructor Setup</h1>
+    <p>Choose the version of the simulation and set the options below.
+       Students will start the simulation on the next screen.</p>
+
+    <fieldset class="optionGroup" id="versionGroup">
+      <legend class="label">Simulation version</legend>
+      <!-- radio buttons are added by sim.js from config.js -->
+    </fieldset>
+
+    <label class="label" for="errorChance">
+      Chance of an error after a student starts a program (%)
+    </label>
+    <input id="errorChance" type="number" min="0" max="100" step="1" inputmode="numeric">
+    <p class="helpText">
+      If the chance succeeds, the error occurs <span id="errorDelayText">15</span>
+      seconds after the student clicks Start Cycler.
+    </p>
+
+    <label class="label fieldGroup" for="quietPeriod">
+      Quiet period at the start of the simulation (minutes)
+    </label>
+    <input id="quietPeriod" type="number" min="0" step="0.5" inputmode="decimal">
+    <p class="helpText">
+      No random error can occur during this time after the simulation starts.
+      Errors from missed preventive maintenance are not affected.
+    </p>
+
+    <p id="setupStatus" class="formStatus" role="alert"></p>
+    <div class="btnbar">
+      <button id="setupContinueBtn" class="primary">Continue to student screen</button>
+    </div>
+  </section>
+
+  <!-- STUDENT HOME -->
+  <section id="homeScreen" class="screen">
+    <h1>Welcome to Zone B Shift!</h1>
+    <p>Press start to begin your shift.</p>
+    <div class="btnbar">
+      <button id="startBtn" class="primary">Start Shift</button>
+    </div>
+  </section>
+
+  <!-- SIMULATION -->
+  <section id="simScreen" class="screen">
+    <!-- aria-live: screen readers announce mode changes and errors -->
+    <div aria-live="polite" aria-atomic="true">
+      <h1 id="modeTitle">Normal operations</h1>
+      <p id="modeDesc">Systems are operating within expected parameters.</p>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <div class="label">Uptime</div>
+        <div id="uptimeTime" class="value">00:00:00</div>
+      </div>
+      <div class="card">
+        <div class="label">Cells Produced</div>
+        <div id="producedCount" class="value">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Downtime</div>
+        <div id="downtimeTime" class="value">00:00:00</div>
+      </div>
+      <div class="card">
+        <div class="label">Cells Lost</div>
+        <div id="lostCount" class="value">0</div>
+      </div>
+    </div>
+
+    <div class="btnbar">
+      <button id="endBtn" class="danger">End Shift</button>
+      <button id="fixBtn" class="good" hidden>Error Fixed</button>
+      <button id="ticketBtn" class="primary" hidden>Maintenance Ticket</button>
+      <button id="selectProgramBtn" class="warn">Select Program</button>
+      <button id="maintenanceBtn" class="secondary">Maintenance / Quality Check</button>
+    </div>
+  </section>
+
+  <!-- PREVENTIVE MAINTENANCE -->
+  <section id="maintenanceScreen" class="screen">
+    <h1>Preventive Maintenance</h1>
+    <p>Record each task when it has been completed. The line is paused (counted
+       as downtime) while you are on this screen.</p>
+    <div id="maintenanceTaskList"></div>
+    <div class="btnbar">
+      <button id="maintenanceReturnBtn" class="secondary">Return to Shift HMI</button>
+    </div>
+  </section>
+
+  <!-- MAINTENANCE TICKET (only reachable during an error) -->
+  <section id="ticketScreen" class="screen">
+    <h1>Maintenance Ticket</h1>
+    <p>Describe the issue you are raising. The line stays down (counted as
+       downtime) while you write.</p>
+    <label class="label" for="ticketText">Issue description</label>
+    <textarea id="ticketText" rows="8"></textarea>
+    <p id="ticketStatus" class="formStatus" role="status"></p>
+    <div class="btnbar">
+      <button id="ticketCancelBtn" class="secondary">Cancel</button>
+      <button id="ticketSubmitBtn" class="primary">Submit Ticket</button>
+    </div>
+  </section>
+
+  <!-- TICKET CONFIRMATION -->
+  <section id="ticketConfirmScreen" class="screen">
+    <h1>Have you reviewed with your team lead?</h1>
+    <p>Confirm before submitting your maintenance ticket.</p>
+    <div class="btnbar">
+      <button id="ticketConfirmNoBtn" class="secondary">No</button>
+      <button id="ticketConfirmYesBtn" class="good">Yes</button>
+    </div>
+  </section>
+
+  <!-- PROGRAM SELECT -->
+  <section id="programScreen" class="screen">
+    <h1>Select Program</h1>
+    <p>Choose the correct program and start the cycler.</p>
+    <div id="programList" class="btnbar"></div>
+    <div class="btnbar">
+      <button id="programBackBtn" class="secondary">Back</button>
+      <button id="cyclerStartBtn" class="primary" disabled>Start Cycler</button>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section id="summaryScreen" class="screen">
+    <h1>Shift ended</h1>
+    <p>Final results:</p>
+
+    <div class="row">
+      <div class="card">
+        <div class="label">Uptime</div>
+        <div id="finalUptime" class="value">00:00:00</div>
+      </div>
+      <div class="card">
+        <div class="label">Cells Produced</div>
+        <div id="finalProduced" class="value">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Downtime</div>
+        <div id="finalDowntime" class="value">00:00:00</div>
+      </div>
+      <div class="card">
+        <div class="label">Cells Lost</div>
+        <div id="finalLost" class="value">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Programs run correctly</div>
+        <div id="finalPrograms" class="value">0 / 0</div>
+      </div>
+      <div class="card">
+        <div class="label">Problems solved</div>
+        <div id="finalProblems" class="value">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Tickets raised</div>
+        <div id="finalTickets" class="value">0</div>
+      </div>
+    </div>
+
+    <div class="btnbar">
+      <button id="restartBtn" class="secondary">Restart</button>
+    </div>
+  </section>
+
+  <script src="config.js"></script>
+  <script src="sim.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  </script>
+</body>
+</html>

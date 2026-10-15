@@ -1,0 +1,144 @@
+:root {
+  --green: #1f8f3a;
+  --orange: #d97706;
+  --blue: #2563eb;
+  --idle: #f3f4f6;
+  --ended: #111827;
+  --text: #0b1220;
+  --panel: rgba(255,255,255,0.9);
+}
+
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* keep content clear of notches / status bar in fullscreen */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  transition: background-color 250ms ease;
+}
+
+/* Background colour follows the simulation mode (set by sim.js). */
+body[data-mode="idle"]        { background-color: var(--idle); }
+body[data-mode="normal"]      { background-color: var(--green); }
+body[data-mode="error"]       { background-color: var(--orange); }
+body[data-mode="maintenance"] { background-color: var(--blue); }
+body[data-mode="ended"]       { background-color: var(--ended); }
+
+.screen {
+  width: min(720px, 92vw);
+  background: var(--panel);
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  padding: 28px;
+  display: none;
+}
+.screen.active { display: block; }
+
+h1 { margin: 0 0 10px; font-size: 2rem; }
+p  { margin: 0 0 18px; line-height: 1.45; }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.card {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+.label { font-size: 0.9rem; opacity: 0.75; }
+.value { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+
+button {
+  appearance: none;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+button.secondary { background: #111827; color: #fff; }
+button.primary   { background: #2563eb; color: #fff; }
+button.warn      { background: #b45309; color: #fff; }
+button.good      { background: #15803d; color: #fff; }
+button.danger    { background: #b91c1c; color: #fff; }
+
+.btnbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+/* Program picker: selected program is outlined, the others are dimmed */
+#programList.has-selection button:not(.selected) { opacity: 0.5; }
+#programList button.selected { outline: 3px solid #2563eb; outline-offset: 2px; }
+
+/* Maintenance checklist */
+.maintenanceTask {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0;
+  padding: 14px;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 14px;
+}
+.maintenanceTask.completed { background: #dcfce7; border-color: #15803d; }
+.maintenanceTask.overdue   { background: #fee2e2; border-color: #b91c1c; }
+
+.taskName     { font-weight: 700; }
+.taskDeadline { margin-top: 4px; font-size: 0.9rem; opacity: 0.75; }
+.taskStatus   { margin-top: 5px; font-size: 0.9rem; font-weight: 700; }
+.taskCompleted { color: #15803d; }
+.taskOverdue   { color: #b91c1c; }
+
+/* Maintenance ticket form */
+textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 12px;
+  font: inherit;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 12px;
+  resize: vertical;
+}
+.formStatus { min-height: 1.4em; margin: 10px 0 0; font-weight: 650; color: #b91c1c; }
+
+/* Instructor setup screen */
+fieldset.optionGroup { border: 0; padding: 0; margin: 0 0 18px; }
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  font-weight: 650;
+  cursor: pointer;
+}
+.optionRow input { width: 1.1rem; height: 1.1rem; }
+input[type="number"] {
+  display: block;
+  width: 140px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 10px 12px;
+  font: inherit;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 12px;
+}
+.helpText { margin: 8px 0 0; font-size: 0.9rem; opacity: 0.75; }
+.fieldGroup { display: block; margin-top: 18px; }
